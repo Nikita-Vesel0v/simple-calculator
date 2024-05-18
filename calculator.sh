@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Function to read user input
 read_input(){
-    echo "Enter an arithmetic operation: "
+    echo "Enter an arithmetic operation or type 'quit' to quit:" >> $file
+    tail -1 $file
     read -r a operator b
+    echo "$a $operator $b" >> $file
 }
 
 # Validation of input
@@ -26,17 +28,28 @@ perform_calculation() {
     # Performing an arithmetic operation using bc
     local result
     result=$(echo "scale=2; $a_clean $operator $b_clean" | bc -l)
+    echo "$result" >> $file
     printf "%s\n" "$result"
 }
 
 # Main function
 main() {
-    read_input
-    if validate_input; then
-        perform_calculation
-    else
-        echo "Operation check failed!"
-    fi
+    file='operation_history.txt'
+    echo "Welcome to the basic calculator!" > $file
+    tail -1 $file
+    while true; do
+        read_input
+        if [ "$a" == 'quit' ]; then break; fi
+        if validate_input; then
+            perform_calculation
+        else
+            echo "Operation check failed!" >> $file
+            tail -1 $file
+        fi
+    done
+
+    echo "Goodbye!" >> $file
+    tail -1 $file
 }
 
 # Run main function
